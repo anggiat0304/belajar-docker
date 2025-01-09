@@ -23,7 +23,7 @@ pipeline {
             steps {
                script {
                     // Set environment variables
-                    env.JAVA_HOME = "\\opt\\JDK-23.0.1"
+                    env.JAVA_HOME = "\\opts\\JDK-23.0.1"
                     env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
                 }
             }
