@@ -1,32 +1,23 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven' // Gunakan nama konfigurasi Maven dari Jenkins
+    }
     environment {
-        MAVEN_HOME = '/opt/apache-maven-3.9.9' // Ganti sesuai lokasi Maven di server Anda
-        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
         SONARQUBE_URL = 'http://localhost:9000'
-        SONAR_TOKEN = credentials('sonarqube') // Token SonarQube di Jenkins Credentials
+        SONAR_TOKEN = credentials('sonarqube') // Token SonarQube di Jenkins
         PROJECT_KEY = 'crm-pro'
     }
 
     stages {
-        stage('Set Environment') {
-            steps {
-                script {
-                    echo "Maven Home: ${MAVEN_HOME}"
-                }
-            }
-        }
-
         stage('Build and Test') {
             steps {
-                // Gunakan Maven yang ada di server
                 sh 'mvn clean test'
             }
         }
 
-        stage('Sonarqube Analysis') {
+        stage('SonarQube Analysis') {
             steps {
-                echo 'Running SonarQube Analysis...'
                 sh "mvn sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
             }
         }
@@ -44,7 +35,7 @@ pipeline {
 
     post {
         always {
-            cleanWs() // Membersihkan workspace
+            cleanWs()
         }
         success {
             echo 'Pipeline executed successfully!'
