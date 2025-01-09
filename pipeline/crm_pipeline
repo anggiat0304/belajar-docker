@@ -10,6 +10,13 @@ pipeline {
     }
 
     stages {
+        stage('Git Checkout') {
+            steps {
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/anggiat0304/crm.git']])
+                echo 'Git Checkout Completed'
+            }
+        }
+
         stage('Build and Test') {
             steps {
                 sh 'mvn clean test'
