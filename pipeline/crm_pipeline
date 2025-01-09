@@ -2,6 +2,7 @@ pipeline {
     agent any
     tools {
         maven 'Maven' // Gunakan nama konfigurasi Maven dari Jenkins
+        jdk 'JDK23'
     }
     environment {
         SONARQUBE_URL = 'http://localhost:9000'
