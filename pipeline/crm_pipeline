@@ -26,7 +26,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('ServerNameSonar') {
+                withSonarQubeEnv('sonarqube-server') {
                     sh "mvn sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
                     echo 'SonarQube Analysis Completed'
                 }
