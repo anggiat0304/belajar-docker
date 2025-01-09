@@ -1,69 +1,57 @@
 pipeline {
     agent any
     tools {
-        maven  'Maven'
+        maven 'Maven'
     }
     environment {
-        SONARQUBE_SERVER = 'sonar' // Ganti dengan nama server SonarQube Anda di Jenkins
-        SONAR_TOKEN = credentials('sonarqube') // Simpan token SonarQube di Jenkins Credentials
-        PROJECT_KEY = 'crm-pro'
-        SONARQUBE_URL = 'http://localhost:9000'
-
+        SONARQUBE_SERVER = 'sonar' // Nama server SonarQube di Jenkins
+        SONAR_TOKEN = credentials('sonarqube') // Token SonarQube di Jenkins Credentials
+        PROJECT_KEY = 'crm-pro' // Project key di SonarQube
+        SONARQUBE_URL = 'http://localhost:9000' // URL SonarQube
     }
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                // Checkout kode dari GitHub
-                echo 'Git Checkout Completed'
-            }
-        }
-
         stage('Set Environment') {
             steps {
-               script {
-                    // Set environment variables
-                    env.JAVA_HOME = "/opt/JDK-23.0.1"
+                script {
+                    env.JAVA_HOME = "/opt/JDK-23.0.1" // Path ke JDK
                     env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                    echo "JAVA_HOME set to: ${env.JAVA_HOME}"
                 }
             }
         }
 
         stage('Build and Test') {
             steps {
-                // Jalankan Maven build
+                echo 'Running Maven Build and Tests...'
                 sh './mvnw clean test'
             }
         }
 
         stage('Sonarqube Analysis') {
             steps {
-                echo 'Sonarqube running....'
+                echo 'Running SonarQube Analysis...'
                 script {
-                    // Set environment variables
-                    env.JAVA_HOME = "\opt\JDK-23.0.1"
-                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-                    sh "./mvnw clean verify sonar:sonar -Dsonar.projectKey=$PROJECT_KEY -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
+                    sh "./mvnw clean verify sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
 
         stage('Quality Gate Check') {
             steps {
+                echo 'Checking SonarQube Quality Gate...'
                 script {
-                    // Memeriksa apakah quality gate di SonarQube lulus atau gagal
                     timeout(time: 5, unit: 'MINUTES') {
                         waitForQualityGate abortPipeline: true
                     }
                 }
             }
         }
-
     }
 
     post {
         always {
-            // Clean up workspace setelah selesai
+            echo 'Cleaning workspace...'
             cleanWs()
         }
         success {
