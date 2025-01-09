@@ -1,45 +1,38 @@
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
     environment {
-        SONARQUBE_SERVER = 'sonar' // Nama server SonarQube di Jenkins
+        MAVEN_HOME = '/opt/apache-maven-3.9.9' // Ganti sesuai lokasi Maven di server Anda
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
+        SONARQUBE_URL = 'http://localhost:9000'
         SONAR_TOKEN = credentials('sonarqube') // Token SonarQube di Jenkins Credentials
-        PROJECT_KEY = 'crm-pro' // Project key di SonarQube
-        SONARQUBE_URL = 'http://localhost:9000' // URL SonarQube
+        PROJECT_KEY = 'crm-pro'
     }
 
     stages {
         stage('Set Environment') {
             steps {
                 script {
-                    env.JAVA_HOME = "/opt/JDK-23.0.1" // Path ke JDK
-                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
-                    echo "JAVA_HOME set to: ${env.JAVA_HOME}"
+                    echo "Maven Home: ${MAVEN_HOME}"
                 }
             }
         }
 
         stage('Build and Test') {
             steps {
-                echo 'Running Maven Build and Tests...'
-                sh './mvnw clean test'
+                // Gunakan Maven yang ada di server
+                sh 'mvn clean test'
             }
         }
 
         stage('Sonarqube Analysis') {
             steps {
                 echo 'Running SonarQube Analysis...'
-                script {
-                    sh "./mvnw clean verify sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
-                }
+                sh "mvn sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN}"
             }
         }
 
         stage('Quality Gate Check') {
             steps {
-                echo 'Checking SonarQube Quality Gate...'
                 script {
                     timeout(time: 5, unit: 'MINUTES') {
                         waitForQualityGate abortPipeline: true
@@ -51,8 +44,7 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning workspace...'
-            cleanWs()
+            cleanWs() // Membersihkan workspace
         }
         success {
             echo 'Pipeline executed successfully!'
