@@ -52,7 +52,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def dockerTag = "${DOCKER_IMAGE}:${env.BUILD_NUMBER}" // Tambahkan tag dengan nomor build
+                    def dockerTag = "${DOCKER_IMAGE}:latest" // Tambahkan tag dengan nomor build
                     sh """
                         docker build -t ${dockerTag} .
                     """
