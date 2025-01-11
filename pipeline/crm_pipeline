@@ -9,6 +9,9 @@ pipeline {
         SONAR_TOKEN = credentials('sonarqube') // Token SonarQube di Jenkins
         PROJECT_KEY = 'crm-pro'
         JACOCO_TARGET = 'target/site/jacoco/jacoco.xml'
+        DOCKER_REGISTRY = 'docker.io'
+        DOCKER_IMAGE = 'anggiat/crm-app'
+        DOCKER_CREDENTIALS = credentials('docker-credential')
     }
 
     stages {
@@ -83,6 +86,19 @@ pipeline {
         //         }
         //     }
         // }
+
+         stage('Build Docker Image') {
+            steps {
+                script {
+                    def dockerTag = "${DOCKER_IMAGE}:${env.BUILD_NUMBER}" // Tambahkan tag dengan nomor build
+                    sh """
+                        docker build -t ${dockerTag} .
+                    """
+                    echo "Docker Image Built: ${dockerTag}"
+                }
+            }
+        }
+
     }
 
     post {
