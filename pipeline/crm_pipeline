@@ -63,7 +63,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
-                        def dockerTag = "anggiat/crm-app:${env.BUILD_NUMBER}"
+                        def dockerTag = "anggiat/crm-app:latest"
                         sh """
                     echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
                     docker push ${dockerTag} 

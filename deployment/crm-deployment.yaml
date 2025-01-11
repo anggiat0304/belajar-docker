@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: crm-app
-          image: anggiat/crm-app
+          image: anggiat/crm-app:latest
           ports:
             - containerPort: 8070
 
