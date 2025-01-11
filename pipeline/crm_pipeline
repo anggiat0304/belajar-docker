@@ -43,24 +43,24 @@ pipeline {
             }
         }
 
-        // stage('Check Quality Gate') {
-        //     steps {
-        //         script {
-        //             def qg = waitForQualityGate()
-        //             if (qg.status != 'OK') {
-        //                 echo "Quality Gate Status: ${qg.status}"
-        //                 error "Pipeline stopped due to quality gate failure: ${qg.status}"
-        //             }
-        //             echo "Quality Gate passed with status: ${qg.status}"
-        //         }
-        //     }
-        // }
+        stage('Check Quality Gate') {
+            steps {
+                script {
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        echo "Quality Gate Status: ${qg.status}"
+                        error "Pipeline stopped due to quality gate failure: ${qg.status}"
+                    }
+                    echo "Quality Gate passed with status: ${qg.status}"
+                }
+            }
+        }
 
         stage('Check Test Coverage') {
             steps {
                 script {
                     def response = sh(
-                        script: "curl -u ${SONAR_TOKEN}: ${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metricKeys=coverage",
+                        script: "curl -u ${SONAR_TOKEN}:${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metricKeys=coverage",
                         returnStdout: true
                     ).trim()
                     def json = readJSON(text: response)
