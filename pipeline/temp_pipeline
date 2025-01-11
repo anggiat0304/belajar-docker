@@ -45,6 +45,47 @@ pipeline {
                 }
             }
         }
+
+        // stage('Check Quality Gate') {
+        //     steps {
+        //         script {
+        //             def qg = waitForQualityGate()
+        //             if (qg.status != 'OK') {
+        //                 echo "Quality Gate Status: ${qg.status}"
+        //                 error "Pipeline stopped due to quality gate failure: ${qg.status}"
+        //             }
+        //             echo "Quality Gate passed with status: ${qg.status}"
+        //         }
+        //     }
+        // }
+
+        // stage('Check Test Coverage') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
+        //             script {
+        //                 def response = sh(
+        //             script: "curl -u ${SONAR_TOKEN}: ${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metricKeys=coverage",
+        //             returnStdout: true
+        //         ).trim()
+
+        //                 // Debug log untuk memeriksa respons API
+        //                 echo "SonarQube API Response: ${response}"
+
+        //                 // Parse JSON dan validasi isi response
+        //                 def json = new groovy.json.JsonSlurper().parseText(response)
+        //                 if (!json.component || !json.component.measures) {
+        //                     error "SonarQube API response is invalid or does not contain 'measures'. Response: ${response}"
+        //                 }
+        //                 def coverage = json.component.measures[0].value.toDouble()
+
+        //                 echo "Test Coverage: ${coverage}%"
+        //                 if (coverage < 100) {ß
+        //                     error "Test coverage is less than 100%: ${coverage}%"
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
         
 
         stage('Build Docker Image') {
@@ -66,7 +107,7 @@ pipeline {
                         def dockerTag = "anggiat/crm-app:${env.BUILD_NUMBER}"
                         sh """
                     echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-                    docker push ${dockerTag} 
+                    docker push ${dockerTag} --progress=plain
                 """
                     }
                 }
