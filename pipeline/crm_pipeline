@@ -105,6 +105,18 @@ pipeline {
             }
         }
 
+        stage('Push Docker Image to Registry') {
+            steps {
+                withDockerRegistry([credentialsId: 'docker-credential', url: "https://${DOCKER_REGISTRY}"]) {
+                    script {
+                        def dockerTag = "${DOCKER_IMAGE}:${env.BUILD_NUMBER}" // Gunakan tag dari langkah sebelumnya
+                        sh "docker push ${dockerTag}"
+                        echo "Docker Image Pushed: ${dockerTag}"
+                    }
+                }
+            }
+        }
+
     }
 
     post {
