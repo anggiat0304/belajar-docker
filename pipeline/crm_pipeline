@@ -93,7 +93,7 @@ pipeline {
             }
         }
 
-         stage('Build Docker Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
                     def dockerTag = "${DOCKER_IMAGE}:${env.BUILD_NUMBER}" // Tambahkan tag dengan nomor build
@@ -107,16 +107,17 @@ pipeline {
 
         stage('Push Docker Image to Registry') {
             steps {
-                withDockerRegistry([credentialsId: 'docker-credential', url: "https://${DOCKER_REGISTRY}"]) {
+                withDockerRegistry([usernamePassword(credentialsId: 'docker-credential', usernameVariable: 'anggiat', passwordVariable: 'sitoluama2')]) {
                     script {
-                        def dockerTag = "${DOCKER_IMAGE}:${env.BUILD_NUMBER}" // Gunakan tag dari langkah sebelumnya
-                        sh "docker push ${dockerTag}"
-                        echo "Docker Image Pushed: ${dockerTag}"
+                        def dockerTag = "anggiat/crm-app:${env.BUILD_NUMBER}"
+                        sh """
+                            echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+                            docker push ${dockerTag}
+                        """
                     }
                 }
             }
         }
-
     }
 
     post {
