@@ -11,6 +11,8 @@ pipeline {
         JACOCO_TARGET = 'target/site/jacoco/jacoco.xml'
         DOCKER_REGISTRY = 'docker.io'
         DOCKER_IMAGE = 'anggiat/crm-app'
+        DOCKER_PASSWORD = 'sitoluama2'
+        DOCKER_USERNAME = 'anggiat'
         DOCKER_CREDENTIALS = credentials('docker-credential')
     }
 
