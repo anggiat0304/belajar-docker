@@ -1,0 +1,37 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_IMAGE = 'anggiat/crm-app' // Nama image di Docker Hub
+        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig' // ID credential untuk Kubeconfig di Jenkins
+        NAMESPACE = 'default' // Namespace Kubernetes
+        DEPLOYMENT_FILE = 'deployment/crm-deployment.yaml' // Path file YAML di repository Git
+    }
+
+    stages {
+       stage('Deploy to Kubernetes') {
+            steps {
+                withKubeConfig([credentialsId: KUBECONFIG_CREDENTIAL_ID]) {
+                    script {
+                        // Terapkan file YAML dari repository Git
+                        sh """
+                            sed -i 's|IMAGE_PLACEHOLDER|${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' ${DEPLOYMENT_FILE}
+                            kubectl apply -f ${DEPLOYMENT_FILE} -n ${NAMESPACE}
+                        """
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
+        }
+    }
+}
