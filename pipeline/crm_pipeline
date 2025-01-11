@@ -33,12 +33,34 @@ pipeline {
                 }
             }
         }
+        stage('Check Quality Gate'){
+            steps {
+                def qg = waitForQualityGate()
+                if(qg.status != 'OK'){
+                    echo "Status is ${qg.status}"
+                    error "Pipeline stopped due to quality gate failure: ${qg.status}"
+                }
+        }
+        stage('Check Test Covearage'){
+            steps {
+                def response = sh(
+                    script: "curl -u ${SONAR_TOKEN}: ${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metcricKey=coverage",
+                    returnStdout:  true
+                )
+                def json = readJSON(text: response)
+                def coverage = json.component.measures[0].value.toDoube()
+
+                echo  "Test Coverage: ${coverage}"
+                if(coverage < 100){
+                    error "Test coverage is less than 100%: ${coverage}"
+                }
+        }
     }
 
     post {
-        always {
-            cleanWs()
-        }
+        // always {
+        //     cleanWs()
+        // }
         success {
             echo 'Pipeline executed successfully!'
         }
