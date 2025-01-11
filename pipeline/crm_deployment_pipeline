@@ -12,9 +12,8 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: "${KUBECONFIG_CREDENTIAL_ID}", variable: 'KUBECONFIG_FILE')]) {
                     script {
-                        // Terapkan file YAML
                         sh """
-                            export KUBECONFIG=${KUBECONFIG_FILE}
+                            export KUBECONFIG=\${KUBECONFIG_FILE}
                             sed -i 's|IMAGE_PLACEHOLDER|${DOCKER_IMAGE}:${env.BUILD_NUMBER}|' ${DEPLOYMENT_FILE}
                             kubectl apply -f ${DEPLOYMENT_FILE} -n ${NAMESPACE}
                         """
