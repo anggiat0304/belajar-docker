@@ -107,13 +107,13 @@ pipeline {
 
         stage('Push Docker Image to Registry') {
             steps {
-                withDockerRegistry([usernamePassword(credentialsId: 'docker-credential')]) {
+                withCredentials([usernamePassword(credentialsId: 'docker-credential', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     script {
                         def dockerTag = "anggiat/crm-app:${env.BUILD_NUMBER}"
                         sh """
-                            echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-                            docker push ${dockerTag}
-                        """
+                    echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
+                    docker push ${dockerTag}
+                """
                     }
                 }
             }
