@@ -14,7 +14,9 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/anggiat0304/crm.git']])
+                checkout scmGit(branches: [[name: '*/main']], 
+                                extensions: [], 
+                                userRemoteConfigs: [[url: 'https://github.com/anggiat0304/crm.git']])
                 echo 'Git Checkout Completed'
             }
         }
@@ -22,39 +24,54 @@ pipeline {
         stage('Build and Test') {
             steps {
                 sh 'mvn clean test'
+                echo 'Build and Test Completed'
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonarqube-server') {
-                    sh "mvn sonar:sonar -Dsonar.projectKey=${PROJECT_KEY} -Dsonar.host.url=${SONARQUBE_URL} -Dsonar.login=${SONAR_TOKEN} -Dsonar.coverage.jacoco.xmlReportPaths=${JACOCO_TARGET}"
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=${PROJECT_KEY} \
+                        -Dsonar.host.url=${SONARQUBE_URL} \
+                        -Dsonar.login=${SONAR_TOKEN} \
+                        -Dsonar.coverage.jacoco.xmlReportPaths=${JACOCO_TARGET}
+                    """
                     echo 'SonarQube Analysis Completed'
                 }
             }
         }
-        stage('Check Quality Gate'){
-            steps {
-                def qg = waitForQualityGate()
-                if(qg.status != 'OK'){
-                    echo "Status is ${qg.status}"
-                    error "Pipeline stopped due to quality gate failure: ${qg.status}"
-                }
-            }    
-        }
-        stage('Check Test Covearage'){
-            steps {
-                def response = sh(
-                    script: "curl -u ${SONAR_TOKEN}: ${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metcricKey=coverage",
-                    returnStdout:  true
-                )
-                def json = readJSON(text: response)
-                def coverage = json.component.measures[0].value.toDoube()
 
-                echo  "Test Coverage: ${coverage}"
-                if(coverage < 100){
-                    error "Test coverage is less than 100%: ${coverage}"
+        stage('Check Quality Gate') {
+            steps {
+                script {
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        echo "Quality Gate Status: ${qg.status}"
+                        error "Pipeline stopped due to quality gate failure: ${qg.status}"
+                    }
+                    echo "Quality Gate passed with status: ${qg.status}"
                 }
+            }
+        }
+
+        stage('Check Test Coverage') {
+            steps {
+                script {
+                    def response = sh(
+                        script: "curl -u ${SONAR_TOKEN}: ${SONARQUBE_URL}/api/measures/component?component=${PROJECT_KEY}&metricKeys=coverage",
+                        returnStdout: true
+                    ).trim()
+                    def json = readJSON(text: response)
+                    def coverage = json.component.measures[0].value.toDouble()
+
+                    echo "Test Coverage: ${coverage}%"
+                    if (coverage < 100) {
+                        error "Test coverage is less than 100%: ${coverage}%"
+                    }
+                }
+            }
         }
     }
 
