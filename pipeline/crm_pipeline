@@ -24,9 +24,9 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Build and Install') {
             steps {
-                sh 'mvn clean test'
+                sh 'mvn clean test install'
                 echo 'Build and Test Completed'
             }
         }
@@ -86,12 +86,7 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Build') {
-            steps {
-                sh 'mvn install'
-                echo 'Build and Test Completed'
-            }
-        }
+        
 
         stage('Build Docker Image') {
             steps {
@@ -112,7 +107,7 @@ pipeline {
                         def dockerTag = "anggiat/crm-app:${env.BUILD_NUMBER}"
                         sh """
                     echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin
-                    docker push ${dockerTag}
+                    docker push ${dockerTag} --progress=plain
                 """
                     }
                 }
