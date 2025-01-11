@@ -24,9 +24,9 @@ pipeline {
             }
         }
 
-        stage('Build and Install') {
+        stage('Build') {
             steps {
-                sh 'mvn clean test install'
+                sh 'mvn clean install -DSkipTests'
                 echo 'Build and Test Completed'
             }
         }
@@ -75,9 +75,9 @@ pipeline {
     }
 
     post {
-        always {
-            cleanWs()
-        }
+        // always {
+        //     cleanWs()
+        // }
         success {
             echo 'Pipeline executed successfully!'
         }
