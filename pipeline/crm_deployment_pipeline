@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = 'anggiat/crm-app' // Nama image di Docker Hub
-        KUBECONFIG_CREDENTIAL_ID = 'kubeconfig' // ID credential untuk Kubeconfig di Jenkins
+        KUBECONFIG_CREDENTIAL_ID = 'kubernetes-key' // ID credential untuk Kubeconfig di Jenkins
         NAMESPACE = 'default' // Namespace Kubernetes
         DEPLOYMENT_FILE = 'deployment/crm-deployment.yaml' // Path file YAML di repository Git
     }
