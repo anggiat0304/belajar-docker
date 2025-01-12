@@ -3,17 +3,16 @@ kind: Deployment
 metadata:
   name: crm-app
   labels:
-    name: crm-app
+    app: crm-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      name: crm-app
+      app: crm-app
   template:
     metadata:
-      name: crm-app
       labels:
-        name: crm-app
+        app: crm-app
     spec:
       containers:
         - name: crm-app
@@ -30,7 +29,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    name: crm-app
+    app: crm-app
   ports:
     - port: 8070
       targetPort: 8070
