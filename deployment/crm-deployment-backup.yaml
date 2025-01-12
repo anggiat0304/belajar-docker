@@ -28,9 +28,10 @@ kind: Service
 metadata:
   name: crm-app-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector:
     name: crm-app
   ports:
     - port: 8070
       targetPort: 8070
+      nodePort: 30002
